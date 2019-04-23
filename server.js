@@ -9,6 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Application Middleware
+app.use(express.static('./public'));
 app.use(express.urlencoded({extended: true}));
 
 // Set the view engine for server-side templating
@@ -17,6 +18,10 @@ app.set('view-engine', 'ejs');
 // API Routes
 // Renders the search form
 app.get('/', (request, response) => {
+  response.render('pages/index.ejs');
+})
+
+app.get('/hello', (request, response) => {
   response.render('pages/index.ejs');
 })
 
