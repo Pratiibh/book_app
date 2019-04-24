@@ -30,13 +30,22 @@ app.post('/searches', (request, response) => {
   superagent.get(`https://www.googleapis.com/books/v1/volumes?q=+intitle:${request.body.search[0]}`).then(result => {
     // console.log(result.body);
 
-    response.send(result.body.items[0].volumeInfo.title);
+    // response.send(result.body.items[0].volumeInfo.title);
+    // response.send(result.body.items);
     // book_array = new Book_input(result.body.items[0])
-    let test = result.body.items.map(build_book_display);
-    console.log(test);
-    response.send(test);
-
+    if(result.body.totalItems === 0){
+      let fail = 'The book you have searched for was not found by the API!'
+      response.render('pages/searches/error.ejs',{fail})
+    } else {
+      let test = result.body.items.map(build_book_display);
+      response.render('pages/searches/show.ejs',{data:test});
+    }
   })
+    .catch(err => {
+      console.log(err)
+      response.render('pages/searches/APIerror.ejs',{err})
+    })
+
   // console.log(request.body);
 })
 
@@ -55,7 +64,7 @@ function Book_input(book) {
   this.title = book.volumeInfo.title;
   this.authors = book.volumeInfo.authors;
   this.description = book.volumeInfo.description;
-  this.image_link = book.volumeInfo.imageLinks.thumbnail.slice(0,4) + "s" + book.volumeInfo.imageLinks.thumbnail.slice(4)
+  this.image_link = book.volumeInfo.imageLinks.thumbnail.slice(0,4) + 's' + book.volumeInfo.imageLinks.thumbnail.slice(4)
   book_array.push(this);
 }
 
