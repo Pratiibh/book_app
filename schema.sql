@@ -7,6 +7,6 @@ CREATE TABLE book_app(
     description VARCHAR(255),
     image_link VARCHAR(255),
     isbn VARCHAR(255),
-    bookshelf NUMERIC(2, 0)
+    bookshelf VARCHAR(255)
 )
 

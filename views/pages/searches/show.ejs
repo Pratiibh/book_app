@@ -14,6 +14,12 @@
                 <p><%=data[i].authors%></p>
                 <p><%=data[i].description%></p>
                 <img src = "<%=data[i].image_link%>">
+                <form method="post">
+                    <input type="submit" value="Add to Database">
+                </form>
+                <!-- <% function addBookToSQL(){ %>
+                <% client.query('INSERT INTO books_app (title, authors, description, image_link, isbn, bookshelf) VALUES ($1, $2, $3, $4, $5, $6)', Object.values(request.body)) %>
+                <% } %> -->
             </li>
             <% } %>
         </ul>
