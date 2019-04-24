@@ -34,6 +34,12 @@ app.get('/hello', (request, response) => {
 })
 
 // Creates a new search to the Google Books API
+app.post('/', (request,response) => {
+  console.log('attempt to post')
+  // response.render('/searches/addBook.ejs')
+})
+
+
 app.post('/searches', (request, response) => {
   superagent.get(`https://www.googleapis.com/books/v1/volumes?q=+intitle:${request.body.search[0]}`).then(result => {
     // console.log(result.body);
@@ -47,6 +53,7 @@ app.post('/searches', (request, response) => {
     } else {
       let test = result.body.items.map(build_book_display);
       response.render('pages/searches/show.ejs',{data:test});
+      // code for add to database
     }
   })
     .catch(err => {
@@ -63,6 +70,10 @@ app.post('/searches', (request, response) => {
 function build_book_display(val){
   let book_object = new Book_input(val)
   return book_object;
+}
+
+function addBookToSQL(request){
+  client.query('INSERT INTO books_app (title, authors, description, image_link, isbn, bookshelf) VALUES ($1, $2, $3, $4, $5, $6)', Object.values(request.body))
 }
 // Book constructor
 
