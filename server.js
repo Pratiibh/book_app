@@ -1,12 +1,20 @@
 'use strict';
 
+require('dotenv').config();
+
 // Application Dependencies
 const express = require('express');
+const pg = require('pg');
 const superagent = require('superagent');
 
 // Application Setup
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Setup client to talk to pg
+const client = new pg.Client(process.env.DATABASE_URL);
+client.on('error', console.error);
+client.connect();
 
 // Application Middleware
 app.use(express.static('./public'));
@@ -65,6 +73,7 @@ function Book_input(book) {
   this.authors = book.volumeInfo.authors;
   this.description = book.volumeInfo.description;
   this.image_link = book.volumeInfo.imageLinks.thumbnail.slice(0,4) + 's' + book.volumeInfo.imageLinks.thumbnail.slice(4)
+  this.ISBN = book.volumeInfo.industryIdentifiers.identifier;
   book_array.push(this);
 }
 
