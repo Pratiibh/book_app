@@ -16,6 +16,11 @@ const client = new pg.Client(process.env.DATABASE_URL);
 client.on('error', console.error);
 client.connect();
 
+// SQL commands
+const SQL = {};
+SQL.getAllData = 'SELECT * FROM book_app;';
+SQL.idCheck = 'SELECT * FROM book_app WHERE id=$1;';
+
 // Application Middleware
 app.use(express.static('./public'));
 app.use(express.urlencoded({extended: true}));
@@ -26,17 +31,26 @@ app.set('view-engine', 'ejs');
 // API Routes
 // Renders the search form
 app.get('/', (request, response) => {
-  response.render('pages/index.ejs');
-})
-
-app.get('/hello', (request, response) => {
-  response.render('pages/index.ejs');
+  // const testSelected = request.params.id //parseInt(request.params.id)
+  client.query(SQL.getAllData).then(result => {
+    // console.log(testSelected);
+    response.render('pages/index.ejs', {testing:result.rows});
+  })
 })
 
 // Creates a new search to the Google Books API
-app.post('/', (request,response) => {
-  console.log('attempt to post')
+app.post('/bookshelf', (request,response) => {
+  console.log('attempt to post');
+  console.log(request.body);
+
+  const {title, authors, image_link, description, isbn, bookshelf} = request.body;
+
+  const sql = 'INSERT INTO book_app (title, authors, description, image_link, isbn, bookshelf) VALUES ($1, $2, $3, $4, $5, $6)'
+  client.query(sql, [title, authors, image_link, description, isbn, 'bookshelf'])
+
+
   // response.render('/searches/addBook.ejs')
+  response.redirect('/');
 })
 
 
@@ -64,17 +78,13 @@ app.post('/searches', (request, response) => {
   // console.log(request.body);
 })
 
-// Catch-all
-
 // HELPER FUNCTIONS
 function build_book_display(val){
   let book_object = new Book_input(val)
   return book_object;
 }
 
-function addBookToSQL(request){
-  client.query('INSERT INTO books_app (title, authors, description, image_link, isbn, bookshelf) VALUES ($1, $2, $3, $4, $5, $6)', Object.values(request.body))
-}
+
 // Book constructor
 
 let book_array = [];
