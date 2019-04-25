@@ -34,6 +34,7 @@ app.get('/', (request, response) => {
   // const testSelected = request.params.id //parseInt(request.params.id)
   client.query(SQL.getAllData).then(result => {
     // console.log(testSelected);
+    console.log(result.rows)
     response.render('pages/index.ejs', {testing:result.rows});
   })
 })
@@ -46,13 +47,16 @@ app.post('/bookshelf', (request,response) => {
   const {title, authors, image_link, description, isbn, bookshelf} = request.body;
 
   const sql = 'INSERT INTO book_app (title, authors, description, image_link, isbn, bookshelf) VALUES ($1, $2, $3, $4, $5, $6)'
-  client.query(sql, [title, authors, image_link, description, isbn, 'bookshelf'])
+  client.query(sql, [title, authors, description, image_link, isbn, 'bookshelf'])
 
 
   // response.render('/searches/addBook.ejs')
   response.redirect('/');
 })
 
+app.get('/new', (request, response) => {
+  response.render('pages/new.ejs')
+})
 
 app.post('/searches', (request, response) => {
   superagent.get(`https://www.googleapis.com/books/v1/volumes?q=+intitle:${request.body.search[0]}`).then(result => {
@@ -72,7 +76,7 @@ app.post('/searches', (request, response) => {
   })
     .catch(err => {
       console.log(err)
-      response.render('pages/searches/APIerror.ejs',{err})
+      response.render('pages/searches/APIerror.ejs',{error: err})
     })
 
   // console.log(request.body);
