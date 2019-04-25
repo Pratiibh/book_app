@@ -6,6 +6,7 @@ require('dotenv').config();
 const express = require('express');
 const pg = require('pg');
 const superagent = require('superagent');
+const methodOverride = require('method-override');
 
 // Application Setup
 const app = express();
@@ -15,6 +16,15 @@ const PORT = process.env.PORT || 3000;
 const client = new pg.Client(process.env.DATABASE_URL);
 client.on('error', console.error);
 client.connect();
+
+// look in the urlencoded POST body and delete _method then change to a put
+app.use(methodOverride((request, response) => {
+  if(request.body && typeof request.body === 'object' && '_method' in request.body) {
+    let method = request.body._method; // 'PUT';
+    delete request.body._method;
+    return method; // 'PUT'
+  }
+}))
 
 // SQL commands
 const SQL = {};
@@ -48,16 +58,13 @@ app.post('/bookshelf', (request,response) => {
   const sql = 'INSERT INTO book_app (title, authors, description, image_link, isbn, bookshelf) VALUES ($1, $2, $3, $4, $5, $6)'
   client.query(sql, [title, authors, image_link, description, isbn, 'bookshelf'])
 
-
   // response.render('/searches/addBook.ejs')
   response.redirect('/');
 })
 
-
 app.post('/searches', (request, response) => {
   superagent.get(`https://www.googleapis.com/books/v1/volumes?q=+intitle:${request.body.search[0]}`).then(result => {
     // console.log(result.body);
-
     // response.send(result.body.items[0].volumeInfo.title);
     // response.send(result.body.items);
     // book_array = new Book_input(result.body.items[0])
@@ -74,7 +81,6 @@ app.post('/searches', (request, response) => {
       console.log(err)
       response.render('pages/searches/APIerror.ejs',{err})
     })
-
   // console.log(request.body);
 })
 
@@ -83,7 +89,6 @@ function build_book_display(val){
   let book_object = new Book_input(val)
   return book_object;
 }
-
 
 // Book constructor
 
@@ -98,9 +103,13 @@ function Book_input(book) {
   book_array.push(this);
 }
 
+// below test renders page
+app.get('/test', (request, response) => {
+  response.render('pages/index.ejs');
+});
+
 // No API key required
 // Console.log request.body and request.body.search
-
 // console.log(book_array);
 
 app.listen(PORT, () => console.log('app is up on port ' + PORT));
