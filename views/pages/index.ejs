@@ -12,7 +12,16 @@
   <body>
     <main>
       <p class="header">Best Books!</p>
-      <% %>
+        <a href="/new">
+          <input type ="submit" value="Search for new books!">
+        </a>
+      <% for(var i = 0; i < testing.length; i++){ %>
+        <p><%=testing[i].title%><p>
+        <p><%=testing[i].authors%><p>
+        <p><%=testing[i].description%><p>
+        <img src = "<%=testing[i].image_link%>">
+        <% } %>
+
        <!-- <% include ../pages/new.ejs %> -->
         </main>
   </body>
