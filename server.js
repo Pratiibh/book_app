@@ -6,7 +6,7 @@ require('dotenv').config();
 const express = require('express');
 const pg = require('pg');
 const superagent = require('superagent');
-const methodOverride = require('method-override');
+// const methodOverride = require('method-override');
 
 // Application Setup
 const app = express();
@@ -17,14 +17,14 @@ const client = new pg.Client(process.env.DATABASE_URL);
 client.on('error', console.error);
 client.connect();
 
-// look in the urlencoded POST body and delete _method then change to a put
-app.use(methodOverride((request, response) => {
-  if(request.body && typeof request.body === 'object' && '_method' in request.body) {
-    let method = request.body._method; // 'PUT';
-    delete request.body._method;
-    return method; // 'PUT'
-  }
-}))
+// // look in the urlencoded POST body and delete _method then change to a put
+// app.use(methodOverride((request, response) => {
+//   if(request.body && typeof request.body === 'object' && '_method' in request.body) {
+//     let method = request.body._method; // 'PUT';
+//     delete request.body._method;
+//     return method; // 'PUT'
+//   }
+// }))
 
 // SQL commands
 const SQL = {};
@@ -41,7 +41,6 @@ app.set('view-engine', 'ejs');
 // API Routes
 // Renders the search form
 app.get('/', (request, response) => {
-  // const testSelected = request.params.id //parseInt(request.params.id)
   client.query(SQL.getAllData).then(result => {
     // console.log(testSelected);
     console.log(result.rows)
@@ -57,7 +56,7 @@ app.post('/bookshelf', (request,response) => {
   const {title, authors, image_link, description, isbn, bookshelf} = request.body;
 
   const sql = 'INSERT INTO book_app (title, authors, description, image_link, isbn, bookshelf) VALUES ($1, $2, $3, $4, $5, $6)'
-  client.query(sql, [title, authors, description, image_link, isbn, 'bookshelf'])
+  client.query(sql, [title, authors, description, image_link, isbn, bookshelf])
 
   // response.render('/searches/addBook.ejs')
   response.redirect('/');
@@ -66,6 +65,13 @@ app.post('/bookshelf', (request,response) => {
 
 app.get('/new', (request, response) => {
   response.render('pages/new.ejs')
+})
+
+app.get('/details/:id', (request, response) => {
+  const testSelected = request.params.id //parseInt(request.params.id)
+  client.query(SQL.idCheck, [testSelected]).then(result => {
+    response.render('pages/details.ejs', {testing:result.rows[0]});
+  })
 })
 
 app.post('/searches', (request, response) => {
